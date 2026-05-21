@@ -301,16 +301,7 @@
     <button class="btn secondary" id="back-btn">&larr; Back</button>
   </div>
 
-  <!-- ====== NAME ====== -->
-  <div class="screen" id="screen-name">
-    <h2>One last thing.</h2>
-    <p class="muted" style="margin-bottom: 28px;">A name to put on your result. Or skip it.</p>
-    <input type="text" id="name-input" placeholder="Your name or alias" autocomplete="off" maxlength="40" />
-    <button class="btn has-arrow" id="finish-btn">See my result <span class="arrow">&rarr;</span></button>
-    <div style="text-align: center; margin-top: 20px;">
-      <a class="skip" id="skip-name">Skip — show me anyway</a>
-    </div>
-  </div>
+
 
   <!-- ====== RESULT ====== -->
   <div class="screen" id="screen-result">
@@ -382,7 +373,7 @@
      LOW on the construct, not high. Inversion: newVal = 8 - val.
      ============================================================ */
   const QUESTIONS = [
-    { text: "I like my performance to stand out among people doing similar things.",            cell: 'other_app', reverse: false },
+    { text: "I like my work or performance to stand out among people doing similar things.",     cell: 'other_app', reverse: false },
     { text: "I would rather avoid mistakes than push for exceptional results.",                 cell: 'task_avo',  reverse: false },
     { text: "I tend to compare my current performance with how I have done before.",            cell: 'self_app',  reverse: false },
     { text: "I care more about being satisfied with my performance than outperforming others.", cell: 'other_avo', reverse: true  },
@@ -528,7 +519,7 @@
     return a;
   }
 
-  const state = { name: '', answers: [], currentQ: 0 };
+  const state = { answers: [], currentQ: 0 };
 
   function show(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -578,8 +569,12 @@
       document.querySelectorAll('#scale button').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       setTimeout(() => {
-        if (state.currentQ < QUESTIONS.length - 1) { state.currentQ++; renderQuestion(); }
-        else { show('screen-name'); document.getElementById('name-input').focus(); }
+        if (state.currentQ < QUESTIONS.length - 1) {
+          state.currentQ++;
+          renderQuestion();
+        } else {
+          finishQuiz();
+        }
       }, 260);
     });
   });
@@ -588,16 +583,7 @@
     if (state.currentQ > 0) { state.currentQ--; renderQuestion(); }
   });
 
-  const nameInput = document.getElementById('name-input');
-  nameInput.addEventListener('input', () => { state.name = nameInput.value.trim(); });
-  document.getElementById('finish-btn').addEventListener('click', () => {
-    if (!state.name) state.name = 'Anonymous';
-    finishQuiz();
-  });
-  document.getElementById('skip-name').addEventListener('click', () => {
-    state.name = 'Anonymous';
-    finishQuiz();
-  });
+
 
   function finishQuiz() {
     /* Score each construct as the mean of its three items.
@@ -676,8 +662,8 @@
 
   document.getElementById('to-room-btn').addEventListener('click', () => { renderRoom(); show('screen-room'); });
   document.getElementById('restart-btn').addEventListener('click', () => {
-    state.name = ''; state.answers = []; state.currentQ = 0;
-    nameInput.value = '';
+    state.answers = [];
+    state.currentQ = 0;
     show('screen-landing');
   });
 
