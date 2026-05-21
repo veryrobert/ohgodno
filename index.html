@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="color-scheme" content="light only" />
+<meta name="supported-color-schemes" content="light" />
+<title>What Fuels Your Work</title>
+<style>
+  :root {
+    color-scheme: light only;
+    --bg: #EDE7DD;
+    --ink: #1A1A1A;
+    --ink-soft: #555555;
+    --accent: #C1422B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: #EDE7DD !important;
+    color: #1A1A1A !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 17px; line-height: 1.35; -webkit-font-smoothing: antialiased; min-height: 100vh;
+  }
+  @media (prefers-color-scheme: dark) {
+    html, body { background: #EDE7DD !important; color: #1A1A1A !important; }
+    input[type="text"] { color: #1A1A1A !important; background: transparent !important; }
+    .muted { color: #555555 !important; }
+  }
+  body { padding: 24px 20px 80px; max-width: 600px; margin: 0 auto; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 0 32px; font-size: 13px; }
+  .topbar a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 1px; cursor: pointer; }
+  .topbar .right { text-align: right; }
+
+  h1 { font-weight: 700; font-size: 44px; line-height: 0.95; letter-spacing: -0.02em; margin: 0 0 32px; }
+  h2 { font-weight: 700; font-size: 28px; line-height: 1.05; letter-spacing: -0.01em; margin: 0 0 20px; }
+  p { margin: 0 0 16px; }
+  .muted { color: var(--ink-soft); font-size: 14px; }
+  .skip { font-size: 13px; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--ink-soft); cursor: pointer; }
+  .skip:hover { color: var(--ink); }
+
+  input[type="text"] {
+    width: 100%; background: transparent; color: var(--ink); border: none;
+    border-bottom: 2px solid var(--ink); padding: 12px 0; font-size: 22px;
+    font-family: inherit; font-weight: 700; outline: none; border-radius: 0;
+    -webkit-appearance: none; appearance: none;
+  }
+  input[type="text"]::placeholder { color: var(--ink-soft); font-weight: 400; }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; background: var(--ink); color: var(--bg);
+    border: none; padding: 18px 20px; font-size: 18px; font-weight: 700;
+    font-family: inherit; cursor: pointer; margin: 24px 0 0;
+    letter-spacing: -0.01em; position: relative; text-align: center;
+  }
+  .btn:active { opacity: 0.85; }
+  .btn.secondary { background: transparent; color: var(--ink); border: 2px solid var(--ink); margin-top: 12px; }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn:has(.arrow), .btn.has-arrow {
+    justify-content: flex-start; text-align: left; padding-right: 50px;
+  }
+  .btn .arrow { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
+
+  .intro-text {
+    font-size: 17px;
+    line-height: 1.45;
+    margin-bottom: 28px;
+  }
+
+  .question-num { font-size: 13px; color: var(--ink-soft); margin-bottom: 14px; letter-spacing: 0.02em; }
+  .question-text { font-size: 26px; font-weight: 700; line-height: 1.18; letter-spacing: -0.01em; margin-bottom: 32px; }
+
+  /* 7-point horizontal scale */
+  .scale {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .scale button {
+    aspect-ratio: 1 / 1;
+    background: transparent;
+    border: 2px solid var(--ink);
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .scale button.selected { background: var(--ink); color: var(--bg); }
+  .scale-labels {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--ink-soft);
+    margin-bottom: 32px;
+    line-height: 1.2;
+  }
+  .scale-labels span { max-width: 40%; }
+  .scale-labels span:last-child { text-align: right; }
+
+  .progress { display: flex; gap: 3px; margin-bottom: 28px; }
+  .progress span { flex: 1; height: 4px; background: var(--ink); opacity: 0.15; }
+  .progress span.done { opacity: 1; }
+
+  /* Result */
+  .result-eyebrow {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .result-name-big {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 32px;
+    letter-spacing: -0.01em;
+  }
+
+  .result-block {
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    padding: 28px 0 32px;
+    margin: 8px 0 28px;
+  }
+  .result-score {
+    font-size: 14px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+  .result-score strong {
+    color: var(--ink);
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    display: block;
+    line-height: 0.9;
+    margin-top: 6px;
+  }
+  .result-score-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .result-title-wrap { margin-top: 18px; }
+  .result-title {
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    display: inline;
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 8px;
+    padding-bottom: 2px;
+  }
+  .result-blurb { font-size: 17px; line-height: 1.45; margin: 24px 0; }
+
+  /* Four diagnostic blocks under the synthesised paragraph */
+  .diagnostics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--ink);
+    border: 2px solid var(--ink);
+    margin: 24px 0;
+  }
+  .diag {
+    background: var(--bg);
+    padding: 16px 14px;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .diag-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .diag-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .diag-value .diag-out {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink-soft);
+    letter-spacing: 0;
+    margin-left: 2px;
+  }
+  .diag-sub {
+    font-size: 11px;
+    color: var(--ink-soft);
+    line-height: 1.3;
+  }
+
+  .matrix {
+    display: grid; grid-template-columns: 60px 1fr 1fr; gap: 1px;
+    background: var(--ink); border: 2px solid var(--ink); margin: 24px 0; font-size: 13px;
+  }
+  .matrix > div { background: var(--bg); padding: 10px 8px; }
+  .matrix .header { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+  .matrix .row-label { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; display: flex; align-items: center; justify-content: flex-end; text-align: right; }
+  .matrix .cell { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 14px 6px; min-height: 80px; }
+  .matrix .cell .score { font-size: 26px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+  .matrix .cell .name { font-size: 9px; color: var(--ink-soft); margin-top: 4px; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.04em; }
+  .matrix .cell.dominant { background: var(--ink); color: var(--bg); }
+  .matrix .cell.dominant .name { color: var(--bg); opacity: 0.8; }
+
+  .bar-row { margin-bottom: 18px; }
+  .bar-row .label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; }
+  .bar-row .label strong { font-weight: 700; }
+  .bar-row .bar { height: 14px; background: rgba(26,26,26,0.12); position: relative; }
+  .bar-row .bar .fill { height: 100%; background: var(--ink); width: 0; transition: width 0.6s ease; }
+
+  .footnote { font-size: 12px; color: var(--ink-soft); line-height: 1.4; margin-top: 32px; border-top: 1px solid rgba(26,26,26,0.2); padding-top: 16px; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .page-stamp { position: fixed; bottom: 16px; right: 16px; font-size: 36px; font-weight: 700; color: var(--ink); opacity: 0.15; pointer-events: none; line-height: 1; }
+
+  @media (min-width: 480px) {
+    h1 { font-size: 56px; }
+    .result-title { font-size: 56px; }
+    body { padding: 32px 28px 80px; }
+    .scale button { font-size: 20px; }
+  }
+
+  @media (max-width: 380px) {
+    .scale button { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div>
+      <strong>What fuels your work?</strong><br>
+      <span class="muted">Pecha Kucha · Callan · 21.05.26</span>
+    </div>
+    <div class="right">
+      <a id="menu-link">See the room</a>
+    </div>
+  </div>
+
+  <!-- ====== LANDING ====== -->
+  <div class="screen active" id="screen-landing">
+    <h1>What fuels<br>your work?</h1>
+    <p class="muted">Find out what's driving you.</p>
+
+    <p class="intro-text" style="margin-top: 28px;">
+      Think about something important to you — this could be work, a project, sport, study, or another personal goal. Answer based on how you usually approach these situations. There are no right or wrong answers.
+    </p>
+
+    <button class="btn has-arrow" id="start-btn">Begin <span class="arrow">&rarr;</span></button>
+    <button class="btn secondary" id="see-room-btn">See the room so far</button>
+
+    <div class="footnote">
+      Based on the Elliot, Murayama and Pekrun 3×2 achievement-goal framework (2011). Your answers stay on this device.
+    </div>
+  </div>
+
+  <!-- ====== QUESTION ====== -->
+  <div class="screen" id="screen-question">
+    <div class="progress" id="progress"></div>
+    <div class="question-num" id="q-num">Question 1 of 18</div>
+    <div class="question-text" id="q-text"></div>
+
+    <div class="scale" id="scale">
+      <button data-val="1">1</button>
+      <button data-val="2">2</button>
+      <button data-val="3">3</button>
+      <button data-val="4">4</button>
+      <button data-val="5">5</button>
+      <button data-val="6">6</button>
+      <button data-val="7">7</button>
+    </div>
+    <div class="scale-labels">
+      <span>Strongly disagree</span>
+      <span>Strongly agree</span>
+    </div>
+
+    <button class="btn secondary" id="back-btn">&larr; Back</button>
+  </div>
+
+  <!-- ====== NAME ====== -->
+  <div class="screen" id="screen-name">
+    <h2>One last thing.</h2>
+    <p class="muted" style="margin-bottom: 28px;">A name to put on your result. Or skip it.</p>
+    <input type="text" id="name-input" placeholder="Your name or alias" autocomplete="off" maxlength="40" />
+    <button class="btn has-arrow" id="finish-btn">See my result <span class="arrow">&rarr;</span></button>
+    <div style="text-align: center; margin-top: 20px;">
+      <a class="skip" id="skip-name">Skip — show me anyway</a>
+    </div>
+  </div>
+
+  <!-- ====== RESULT ====== -->
+  <div class="screen" id="screen-result">
+    <div class="result-eyebrow">What fuels</div>
+    <div class="result-name-big" id="result-name-big">You</div>
+
+    <!-- The synthesised pattern paragraph -->
+    <div class="result-block">
+      <div class="result-title-wrap">
+        <span class="result-title" id="result-title">Your profile</span>
+      </div>
+      <p class="result-blurb" id="result-blurb" style="margin-top: 20px; margin-bottom: 0;"></p>
+    </div>
+
+    <!-- The four diagnostic numbers underneath -->
+    <div class="diagnostics">
+      <div class="diag">
+        <div class="diag-label">Approach pull</div>
+        <div class="diag-value"><span id="diag-approach">0.0</span><span class="diag-out">/7</span></div>
+        <div class="diag-sub">How much positive striving drives your work.</div>
+      </div>
+      <div class="diag">
+        <div class="diag-label">Avoidance pull</div>
+        <div class="diag-value"><span id="diag-avoidance">0.0</span><span class="diag-out">/7</span></div>
+        <div class="diag-sub">How much fear of falling short drives your work.</div>
+      </div>
+      <div class="diag">
+        <div class="diag-label">Where you measure from</div>
+        <div class="diag-value"><span id="diag-frame">Task</span></div>
+        <div class="diag-sub" id="diag-frame-sub">The yardstick you compare your work against.</div>
+      </div>
+      <div class="diag">
+        <div class="diag-label">Profile shape</div>
+        <div class="diag-value"><span id="diag-shape">Spread</span></div>
+        <div class="diag-sub" id="diag-shape-sub">Whether one fuel dominates or several pull at once.</div>
+      </div>
+    </div>
+
+    <div class="matrix" id="matrix"></div>
+
+    <p class="muted" style="font-size: 13px;">
+      Each cell score is the mean of three items on a 7-point scale. Most people light up more than one cell.
+    </p>
+
+    <button class="btn has-arrow" id="to-room-btn">See how the room compares <span class="arrow">&rarr;</span></button>
+    <button class="btn secondary" id="restart-btn">Start again</button>
+  </div>
+
+  <!-- ====== ROOM ====== -->
+  <div class="screen" id="screen-room">
+    <h2>The room so far</h2>
+    <p class="muted" id="room-count">No one yet.</p>
+
+    <div id="room-bars" style="margin-top: 24px;"></div>
+
+    <p class="muted" style="font-size: 12px; margin-top: 24px;">
+      Average score per dimension across everyone so far. Each out of 7.
+    </p>
+
+    <button class="btn secondary" id="back-to-start-btn">&larr; Back to start</button>
+  </div>
+
+  <div class="page-stamp" id="page-stamp"></div>
+
+<script>
+  /* ============================================================
+     18 items in fixed mixed order.
+     Items 4 and 16 are reverse-scored: a response of 7 means
+     LOW on the construct, not high. Inversion: newVal = 8 - val.
+     ============================================================ */
+  const QUESTIONS = [
+    { text: "I like my performance to stand out among people doing similar things.",            cell: 'other_app', reverse: false },
+    { text: "I would rather avoid mistakes than push for exceptional results.",                 cell: 'task_avo',  reverse: false },
+    { text: "I tend to compare my current performance with how I have done before.",            cell: 'self_app',  reverse: false },
+    { text: "I care more about being satisfied with my performance than outperforming others.", cell: 'other_avo', reverse: true  },
+    { text: "Doing something well matters more to me than recognition for it.",                 cell: 'task_app',  reverse: false },
+    { text: "I notice when I am performing below my usual level.",                              cell: 'self_avo',  reverse: false },
+    { text: "Being recognised for strong performance matters to me.",                           cell: 'other_app', reverse: false },
+    { text: "I spend more time trying to prevent mistakes than trying to exceed expectations.", cell: 'task_avo',  reverse: false },
+    { text: "I judge success by whether I have improved on my previous performance.",           cell: 'self_app',  reverse: false },
+    { text: "I try to avoid being outperformed by people doing similar things.",                cell: 'other_avo', reverse: false },
+    { text: "I prefer understanding how to do something well over simply getting results.",     cell: 'task_app',  reverse: false },
+    { text: "Performing worse than I have done before would bother me.",                        cell: 'self_avo',  reverse: false },
+    { text: "I tend to compare my performance with people doing similar things.",               cell: 'other_app', reverse: false },
+    { text: "Avoiding errors matters more to me than aiming for exceptional results.",          cell: 'task_avo',  reverse: false },
+    { text: "Doing better than I have done in the past matters to me.",                         cell: 'self_app',  reverse: false },
+    { text: "I care more about being happy with my performance than how I compare with others.",cell: 'other_avo', reverse: true  },
+    { text: "I enjoy working out how to do something properly.",                                cell: 'task_app',  reverse: false },
+    { text: "I try to avoid performing below my usual standard.",                               cell: 'self_avo',  reverse: false },
+  ];
+
+  const CELL_NAMES = {
+    task_app:  'The craft',
+    task_avo:  'Avoiding mistakes',
+    self_app:  'Improving on yourself',
+    self_avo:  'Maintaining standards',
+    other_app: 'Standing out',
+    other_avo: 'Not falling behind',
+  };
+
+  /* ============================================================
+     Profile analysis.
+     Instead of highlighting a single dominant cell (which would
+     push everyone toward 'the craft' because task_app is the most
+     socially acceptable to agree with), we synthesise a pattern
+     from the whole 3x2 profile and produce a paragraph that
+     describes the shape, not the peak.
+
+     Four diagnostic values:
+       - approach mean (task_app + self_app + other_app) / 3
+       - avoidance mean (task_avo + self_avo + other_avo) / 3
+       - dominant frame: highest of (task_app+task_avo),
+                                    (self_app+self_avo),
+                                    (other_app+other_avo)
+       - profile shape: 'concentrated' if range of cells > 2.0,
+                        otherwise 'spread'
+     ============================================================ */
+
+  const FRAME_LABELS = {
+    task:  { title: 'The task itself',
+             sub:   'You judge the work against what the work itself needs.' },
+    self:  { title: 'Your own trajectory',
+             sub:   'You judge yourself against who you were before.' },
+    other: { title: 'Other people',
+             sub:   'You judge yourself against the room.' },
+  };
+
+  function analyseProfile(cellScores) {
+    const approachMean = (cellScores.task_app + cellScores.self_app + cellScores.other_app) / 3;
+    const avoidanceMean = (cellScores.task_avo + cellScores.self_avo + cellScores.other_avo) / 3;
+
+    const frames = {
+      task:  cellScores.task_app + cellScores.task_avo,
+      self:  cellScores.self_app + cellScores.self_avo,
+      other: cellScores.other_app + cellScores.other_avo,
+    };
+    const dominantFrame = Object.entries(frames).sort((a, b) => b[1] - a[1])[0][0];
+
+    const allScores = Object.values(cellScores);
+    const range = Math.max(...allScores) - Math.min(...allScores);
+    const shape = range >= 2.0 ? 'concentrated' : 'spread';
+
+    /* Pick a title and paragraph based on the combination */
+    const high = (v) => v >= 5.0;
+    const low  = (v) => v < 4.0;
+
+    let title, paragraph;
+
+    if (high(approachMean) && high(avoidanceMean)) {
+      title = 'Pulled from both sides';
+      paragraph = "Your work runs on both directions of the achievement-goal pattern. You're pulled hard toward doing the work well, and pulled equally hard away from doing it badly. That energy from both sides is what gets you working, but it's the most expensive way to sustain a career. ";
+      paragraph += frameSentence(dominantFrame, shape);
+    }
+    else if (high(approachMean) && low(avoidanceMean)) {
+      title = 'Mostly pulled forward';
+      paragraph = "Your work is fuelled more by what you're trying to do than by what you're trying not to do. The pull toward good work is stronger than the push away from bad work. This is the closest the framework gets to a healthy mastery profile. ";
+      paragraph += frameSentence(dominantFrame, shape);
+    }
+    else if (low(approachMean) && high(avoidanceMean)) {
+      title = 'Mostly pushed by fear';
+      paragraph = "Your work is driven more by what you're trying not to be than by what you're trying to be. The energy is in the avoidance, not the approach. This is the most expensive fuel of the six dimensions, because the work that never goes in never wins. ";
+      paragraph += frameSentence(dominantFrame, shape);
+    }
+    else if (low(approachMean) && low(avoidanceMean)) {
+      title = 'Quietly fuelled';
+      paragraph = "Neither side is pulling at you very hard. You're not driven by chasing success and you're not pushed by avoiding failure. This can mean a healthy distance from your work, or it can mean disengagement or burnout. Only you'll know which. ";
+      paragraph += frameSentence(dominantFrame, shape);
+    }
+    else {
+      title = 'Mid-range pattern';
+      paragraph = "Both approach and avoidance pull at you in similar measure. Neither side dominates. ";
+      paragraph += frameSentence(dominantFrame, shape);
+    }
+
+    return {
+      title, paragraph,
+      approachMean, avoidanceMean,
+      dominantFrame, shape,
+    };
+  }
+
+  function frameSentence(frame, shape) {
+    let s = '';
+    if (frame === 'task') {
+      s = "The standard you measure against is the work itself — whether it meets what the task needs.";
+    } else if (frame === 'self') {
+      s = "The standard you measure against is your own past — whether this is better than what came before.";
+    } else if (frame === 'other') {
+      s = "The standard you measure against is other people — how your work compares to theirs.";
+    }
+    if (shape === 'spread') {
+      s += " Your fuel is spread across the matrix rather than concentrated in one place, which is the most common pattern for working creatives.";
+    } else {
+      s += " Your fuel is concentrated in one corner of the matrix rather than spread evenly.";
+    }
+    return s;
+  }
+
+  /* ============================================================
+     Storage — localStorage. Swap these four functions for a real
+     backend later (Firebase / Supabase / Apps Script).
+     ============================================================ */
+  const STORAGE_KEY = 'fuels_results_v5';
+  function readAll() { try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : []; } catch(e) { return []; } }
+  function save(entry) { const all = readAll(); all.push(entry); try { localStorage.setItem(STORAGE_KEY, JSON.stringify(all)); } catch(e) {} }
+  function count() { return readAll().length; }
+  function averages() {
+    const all = readAll();
+    if (all.length === 0) return null;
+    const sums = {};
+    Object.keys(CELL_NAMES).forEach(c => sums[c] = 0);
+    all.forEach(e => Object.keys(CELL_NAMES).forEach(c => sums[c] += (e.cellScores[c] || 0)));
+    const a = {};
+    Object.keys(CELL_NAMES).forEach(c => a[c] = sums[c] / all.length);
+    return a;
+  }
+
+  const state = { name: '', answers: [], currentQ: 0 };
+
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+    updateStamp(id);
+  }
+  function updateStamp(id) {
+    const m = { 'screen-landing':'1', 'screen-question': String(state.currentQ + 2), 'screen-name':'20', 'screen-result':'21', 'screen-room':'22' };
+    document.getElementById('page-stamp').textContent = m[id] || '';
+  }
+
+  document.getElementById('start-btn').addEventListener('click', () => {
+    state.currentQ = 0; state.answers = new Array(QUESTIONS.length).fill(null);
+    renderQuestion(); show('screen-question');
+  });
+  document.getElementById('see-room-btn').addEventListener('click', () => { renderRoom(); show('screen-room'); });
+  document.getElementById('menu-link').addEventListener('click', () => { renderRoom(); show('screen-room'); });
+
+  function renderQuestion() {
+    const q = QUESTIONS[state.currentQ];
+    document.getElementById('q-num').textContent = 'Question ' + (state.currentQ + 1) + ' of ' + QUESTIONS.length;
+    document.getElementById('q-text').textContent = q.text;
+
+    const prog = document.getElementById('progress');
+    prog.innerHTML = '';
+    for (let i = 0; i < QUESTIONS.length; i++) {
+      const span = document.createElement('span');
+      if (i <= state.currentQ) span.classList.add('done');
+      prog.appendChild(span);
+    }
+
+    document.querySelectorAll('#scale button').forEach(b => {
+      b.classList.remove('selected');
+      const existing = state.answers[state.currentQ];
+      if (existing && Number(b.dataset.val) === existing) b.classList.add('selected');
+    });
+
+    document.getElementById('back-btn').style.display = state.currentQ === 0 ? 'none' : 'flex';
+    updateStamp('screen-question');
+  }
+
+  document.querySelectorAll('#scale button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = Number(btn.dataset.val);
+      state.answers[state.currentQ] = val;
+      document.querySelectorAll('#scale button').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      setTimeout(() => {
+        if (state.currentQ < QUESTIONS.length - 1) { state.currentQ++; renderQuestion(); }
+        else { show('screen-name'); document.getElementById('name-input').focus(); }
+      }, 260);
+    });
+  });
+
+  document.getElementById('back-btn').addEventListener('click', () => {
+    if (state.currentQ > 0) { state.currentQ--; renderQuestion(); }
+  });
+
+  const nameInput = document.getElementById('name-input');
+  nameInput.addEventListener('input', () => { state.name = nameInput.value.trim(); });
+  document.getElementById('finish-btn').addEventListener('click', () => {
+    if (!state.name) state.name = 'Anonymous';
+    finishQuiz();
+  });
+  document.getElementById('skip-name').addEventListener('click', () => {
+    state.name = 'Anonymous';
+    finishQuiz();
+  });
+
+  function finishQuiz() {
+    /* Score each construct as the mean of its three items.
+       For reverse-scored items, invert the response: 8 - val. */
+    const cellSums = {};
+    const cellCounts = {};
+    Object.keys(CELL_NAMES).forEach(c => { cellSums[c] = 0; cellCounts[c] = 0; });
+    QUESTIONS.forEach((q, i) => {
+      const raw = state.answers[i];
+      if (raw) {
+        const scored = q.reverse ? (8 - raw) : raw;
+        cellSums[q.cell] += scored;
+        cellCounts[q.cell] += 1;
+      }
+    });
+    const cellScores = {};
+    Object.keys(CELL_NAMES).forEach(c => {
+      cellScores[c] = cellCounts[c] > 0 ? (cellSums[c] / cellCounts[c]) : 0;
+    });
+
+    const entry = { name: state.name, cellScores, at: new Date().toISOString() };
+    save(entry);
+    renderResult(entry);
+    show('screen-result');
+  }
+
+  function renderResult(entry) {
+    document.getElementById('result-name-big').textContent = entry.name;
+
+    const profile = analyseProfile(entry.cellScores);
+
+    /* Synthesised title and paragraph */
+    document.getElementById('result-title').textContent = profile.title;
+    document.getElementById('result-blurb').textContent = profile.paragraph;
+
+    /* Four diagnostic blocks */
+    document.getElementById('diag-approach').textContent = profile.approachMean.toFixed(1);
+    document.getElementById('diag-avoidance').textContent = profile.avoidanceMean.toFixed(1);
+    document.getElementById('diag-frame').textContent = FRAME_LABELS[profile.dominantFrame].title;
+    document.getElementById('diag-frame-sub').textContent = FRAME_LABELS[profile.dominantFrame].sub;
+
+    const shapeLabel = profile.shape === 'spread' ? 'Spread' : 'Concentrated';
+    document.getElementById('diag-shape').textContent = shapeLabel;
+    document.getElementById('diag-shape-sub').textContent = profile.shape === 'spread'
+      ? 'Several fuels pull at you in similar measure.'
+      : 'One or two fuels dominate the others.';
+
+    /* Matrix — no dominant cell highlight, all cells shown equally */
+    const matrix = document.getElementById('matrix');
+    matrix.innerHTML = '';
+    matrix.appendChild(blank());
+    matrix.appendChild(header('Approach'));
+    matrix.appendChild(header('Avoidance'));
+    const rows = [
+      { label: 'Task',  app: 'task_app',  avo: 'task_avo'  },
+      { label: 'Self',  app: 'self_app',  avo: 'self_avo'  },
+      { label: 'Other', app: 'other_app', avo: 'other_avo' },
+    ];
+    rows.forEach(row => {
+      matrix.appendChild(rowLabel(row.label));
+      matrix.appendChild(cell(entry.cellScores[row.app], CELL_NAMES[row.app], false));
+      matrix.appendChild(cell(entry.cellScores[row.avo], CELL_NAMES[row.avo], false));
+    });
+  }
+
+  function blank() { return document.createElement('div'); }
+  function header(t) { const d = document.createElement('div'); d.className = 'header'; d.textContent = t; return d; }
+  function rowLabel(t) { const d = document.createElement('div'); d.className = 'row-label'; d.textContent = t; return d; }
+  function cell(score, name, isDom) {
+    const d = document.createElement('div');
+    d.className = 'cell' + (isDom ? ' dominant' : '');
+    const display = score > 0 ? score.toFixed(1) : '&ndash;';
+    d.innerHTML = '<div class="score">' + display + '</div><div class="name">' + name + '</div>';
+    return d;
+  }
+
+  document.getElementById('to-room-btn').addEventListener('click', () => { renderRoom(); show('screen-room'); });
+  document.getElementById('restart-btn').addEventListener('click', () => {
+    state.name = ''; state.answers = []; state.currentQ = 0;
+    nameInput.value = '';
+    show('screen-landing');
+  });
+
+  function renderRoom() {
+    const total = count();
+    const roomCount = document.getElementById('room-count');
+    if (total === 0) { roomCount.textContent = 'No one has answered yet. Be the first.'; document.getElementById('room-bars').innerHTML = ''; return; }
+    roomCount.textContent = total + ' ' + (total === 1 ? 'person' : 'people') + ' so far.';
+    const avgs = averages();
+    const sorted = Object.entries(avgs).sort((a, b) => b[1] - a[1]);
+    const bars = document.getElementById('room-bars');
+    bars.innerHTML = '';
+    sorted.forEach(([c, avg]) => {
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+      const pct = (avg / 7) * 100;
+      row.innerHTML = '<div class="label"><strong>' + CELL_NAMES[c] + '</strong><span>' + avg.toFixed(1) + '/7</span></div><div class="bar"><div class="fill" style="width:' + pct + '%;"></div></div>';
+      bars.appendChild(row);
+    });
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.bar-row .fill').forEach(f => { const w = f.style.width; f.style.width = '0'; requestAnimationFrame(() => f.style.width = w); });
+    });
+  }
+
+  document.getElementById('back-to-start-btn').addEventListener('click', () => show('screen-landing'));
+  updateStamp('screen-landing');
+</script>
+</body>
+</html>
