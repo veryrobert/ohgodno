@@ -274,7 +274,7 @@
     <button class="btn secondary" id="see-room-btn">See the room so far</button>
 
     <div class="footnote">
-      Based on the Elliot, Murayama and Pekrun 3×2 achievement-goal framework (2011). Your answers stay on this device.
+      Based on the Elliot, Murayama and Pekrun 3×2 achievement-goal framework (2011). Your answers are shared anonymously with the room.
     </div>
   </div>
 
@@ -451,28 +451,28 @@
     let title, paragraph;
 
     if (high(approachMean) && high(avoidanceMean)) {
-      title = 'Pulled from both sides';
-      paragraph = "Your work runs on both directions of the achievement-goal pattern. You're pulled hard toward doing the work well, and pulled equally hard away from doing it badly. That energy from both sides is what gets you working, but it's the most expensive way to sustain a career. ";
+      title = 'The Full Throttle';
+      paragraph = "You run on everything at once — pulled hard toward doing great work and equally alert to what could go wrong. That combination packs a lot of energy into whatever you take on. Most people only have one engine running; you've got both firing. ";
       paragraph += frameSentence(dominantFrame, shape);
     }
     else if (high(approachMean) && low(avoidanceMean)) {
-      title = 'Mostly pulled forward';
-      paragraph = "Your work is fuelled more by what you're trying to do than by what you're trying not to do. The pull toward good work is stronger than the push away from bad work. This is the closest the framework gets to a healthy mastery profile. ";
+      title = 'The Optimist';
+      paragraph = "Your energy flows toward what you're trying to build more than away from what you're trying to avoid. The pull of good work itself is what gets you going. That tends to be the fuel that travels furthest. ";
       paragraph += frameSentence(dominantFrame, shape);
     }
     else if (low(approachMean) && high(avoidanceMean)) {
-      title = 'Mostly pushed by fear';
-      paragraph = "Your work is driven more by what you're trying not to be than by what you're trying to be. The energy is in the avoidance, not the approach. This is the most expensive fuel of the six dimensions, because the work that never goes in never wins. ";
+      title = 'The Careful One';
+      paragraph = "You're highly tuned to what could go wrong — and that makes you thorough, reliable, and hard to catch out. The detail-checking instinct is a genuine skill. Pairing it with a stronger pull toward what you're aiming for could shift even more energy into the work. ";
       paragraph += frameSentence(dominantFrame, shape);
     }
     else if (low(approachMean) && low(avoidanceMean)) {
-      title = 'Quietly fuelled';
-      paragraph = "Neither side is pulling at you very hard. You're not driven by chasing success and you're not pushed by avoiding failure. This can mean a healthy distance from your work, or it can mean disengagement or burnout. Only you'll know which. ";
+      title = 'The Slow Burn';
+      paragraph = "Neither side is pulling at you too hard right now. You've got a certain distance from the work — which can be a sign of maturity, a healthy perspective, or just a quieter phase. You'll know which. ";
       paragraph += frameSentence(dominantFrame, shape);
     }
     else {
-      title = 'Mid-range pattern';
-      paragraph = "Both approach and avoidance pull at you in similar measure. Neither side dominates. ";
+      title = 'The Even Keel';
+      paragraph = "Approach and avoidance are pretty evenly matched across your profile. You're not dominated by either side — a bit of both is a sensible way to operate. ";
       paragraph += frameSentence(dominantFrame, shape);
     }
 
@@ -486,37 +486,42 @@
   function frameSentence(frame, shape) {
     let s = '';
     if (frame === 'task') {
-      s = "The standard you measure against is the work itself — whether it meets what the task needs.";
+      s = "Your main yardstick is the work itself — whether it's actually any good.";
     } else if (frame === 'self') {
-      s = "The standard you measure against is your own past — whether this is better than what came before.";
+      s = "Your main yardstick is your own past — whether today's work is better than yesterday's.";
     } else if (frame === 'other') {
-      s = "The standard you measure against is other people — how your work compares to theirs.";
+      s = "Your main yardstick is other people — how your work sits alongside theirs.";
     }
     if (shape === 'spread') {
-      s += " Your fuel is spread across the matrix rather than concentrated in one place, which is the most common pattern for working creatives.";
+      s += " Your fuel is spread fairly evenly across the matrix, which is the most common pattern.";
     } else {
-      s += " Your fuel is concentrated in one corner of the matrix rather than spread evenly.";
+      s += " Your fuel is concentrated — one or two cells are doing most of the driving.";
     }
     return s;
   }
 
   /* ============================================================
-     Storage — localStorage. Swap these four functions for a real
-     backend later (Firebase / Supabase / Apps Script).
+     Storage — JSONBin.io shared backend.
      ============================================================ */
-  const STORAGE_KEY = 'fuels_results_v5';
-  function readAll() { try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : []; } catch(e) { return []; } }
-  function save(entry) { const all = readAll(); all.push(entry); try { localStorage.setItem(STORAGE_KEY, JSON.stringify(all)); } catch(e) {} }
-  function count() { return readAll().length; }
-  function averages() {
-    const all = readAll();
-    if (all.length === 0) return null;
-    const sums = {};
-    Object.keys(CELL_NAMES).forEach(c => sums[c] = 0);
-    all.forEach(e => Object.keys(CELL_NAMES).forEach(c => sums[c] += (e.cellScores[c] || 0)));
-    const a = {};
-    Object.keys(CELL_NAMES).forEach(c => a[c] = sums[c] / all.length);
-    return a;
+  const BIN_URL = 'https://api.jsonbin.io/v3/b/6a0f212a6877513b27ad1816';
+  const BIN_KEY = '$2a$10$kbD56.gscE/7RX1h17GWgeRiTHx7ciZSmcuBatge4oCCaTHMWDctq';
+
+  async function readAll() {
+    try {
+      const r = await fetch(BIN_URL, { headers: { 'X-Master-Key': BIN_KEY } });
+      const j = await r.json();
+      return Array.isArray(j.record) ? j.record : [];
+    } catch(e) { return []; }
+  }
+
+  async function saveEntry(entry) {
+    const all = await readAll();
+    all.push(entry);
+    await fetch(BIN_URL, {
+      method: 'PUT',
+      headers: { 'X-Master-Key': BIN_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify(all)
+    });
   }
 
   const state = { answers: [], currentQ: 0 };
@@ -536,8 +541,8 @@
     state.currentQ = 0; state.answers = new Array(QUESTIONS.length).fill(null);
     renderQuestion(); show('screen-question');
   });
-  document.getElementById('see-room-btn').addEventListener('click', () => { renderRoom(); show('screen-room'); });
-  document.getElementById('menu-link').addEventListener('click', () => { renderRoom(); show('screen-room'); });
+  document.getElementById('see-room-btn').addEventListener('click', () => { show('screen-room'); renderRoom(); });
+  document.getElementById('menu-link').addEventListener('click', () => { show('screen-room'); renderRoom(); });
 
   function renderQuestion() {
     const q = QUESTIONS[state.currentQ];
@@ -585,7 +590,7 @@
 
 
 
-  function finishQuiz() {
+  async function finishQuiz() {
     /* Score each construct as the mean of its three items.
        For reverse-scored items, invert the response: 8 - val. */
     const cellSums = {};
@@ -604,14 +609,14 @@
       cellScores[c] = cellCounts[c] > 0 ? (cellSums[c] / cellCounts[c]) : 0;
     });
 
-    const entry = { name: state.name, cellScores, at: new Date().toISOString() };
-    save(entry);
+    const entry = { cellScores, at: new Date().toISOString() };
     renderResult(entry);
     show('screen-result');
+    await saveEntry(entry);
   }
 
   function renderResult(entry) {
-    document.getElementById('result-name-big').textContent = entry.name;
+    document.getElementById('result-name-big').textContent = 'You';
 
     const profile = analyseProfile(entry.cellScores);
 
@@ -660,22 +665,32 @@
     return d;
   }
 
-  document.getElementById('to-room-btn').addEventListener('click', () => { renderRoom(); show('screen-room'); });
+  document.getElementById('to-room-btn').addEventListener('click', () => { show('screen-room'); renderRoom(); });
   document.getElementById('restart-btn').addEventListener('click', () => {
     state.answers = [];
     state.currentQ = 0;
     show('screen-landing');
   });
 
-  function renderRoom() {
-    const total = count();
+  async function renderRoom() {
     const roomCount = document.getElementById('room-count');
-    if (total === 0) { roomCount.textContent = 'No one has answered yet. Be the first.'; document.getElementById('room-bars').innerHTML = ''; return; }
-    roomCount.textContent = total + ' ' + (total === 1 ? 'person' : 'people') + ' so far.';
-    const avgs = averages();
-    const sorted = Object.entries(avgs).sort((a, b) => b[1] - a[1]);
     const bars = document.getElementById('room-bars');
+    roomCount.textContent = 'Loading…';
     bars.innerHTML = '';
+
+    const all = await readAll();
+    const total = all.length;
+
+    if (total === 0) { roomCount.textContent = 'No one has answered yet. Be the first.'; return; }
+    roomCount.textContent = total + ' ' + (total === 1 ? 'person' : 'people') + ' so far.';
+
+    const sums = {};
+    Object.keys(CELL_NAMES).forEach(c => sums[c] = 0);
+    all.forEach(e => Object.keys(CELL_NAMES).forEach(c => sums[c] += (e.cellScores[c] || 0)));
+    const avgs = {};
+    Object.keys(CELL_NAMES).forEach(c => avgs[c] = sums[c] / total);
+
+    const sorted = Object.entries(avgs).sort((a, b) => b[1] - a[1]);
     sorted.forEach(([c, avg]) => {
       const row = document.createElement('div');
       row.className = 'bar-row';
